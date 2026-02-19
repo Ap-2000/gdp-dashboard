@@ -1,151 +1,299 @@
 import streamlit as st
 import pandas as pd
-import math
-from pathlib import Path
 
-# Set the title and favicon that appear in the Browser's tab bar.
-st.set_page_config(
-    page_title='GDP dashboard',
-    page_icon=':earth_americas:', # This is an emoji shortcode. Could be a URL too.
-)
+# ----------------------------
+# CM True Cost Calculator App
+# ----------------------------
 
-# -----------------------------------------------------------------------------
-# Declare some useful functions.
-
-@st.cache_data
-def get_gdp_data():
-    """Grab GDP data from a CSV file.
-
-    This uses caching to avoid having to read the file every time. If we were
-    reading from an HTTP endpoint instead of a file, it's a good idea to set
-    a maximum age to the cache with the TTL argument: @st.cache_data(ttl='1d')
-    """
-
-    # Instead of a CSV on disk, you could read from an HTTP endpoint here too.
-    DATA_FILENAME = Path(__file__).parent/'data/gdp_data.csv'
-    raw_gdp_df = pd.read_csv(DATA_FILENAME)
-
-    MIN_YEAR = 1960
-    MAX_YEAR = 2022
-
-    # The data above has columns like:
-    # - Country Name
-    # - Country Code
-    # - [Stuff I don't care about]
-    # - GDP for 1960
-    # - GDP for 1961
-    # - GDP for 1962
-    # - ...
-    # - GDP for 2022
-    #
-    # ...but I want this instead:
-    # - Country Name
-    # - Country Code
-    # - Year
-    # - GDP
-    #
-    # So let's pivot all those year-columns into two: Year and GDP
-    gdp_df = raw_gdp_df.melt(
-        ['Country Code'],
-        [str(x) for x in range(MIN_YEAR, MAX_YEAR + 1)],
-        'Year',
-        'GDP',
-    )
-
-    # Convert years from string to integers
-    gdp_df['Year'] = pd.to_numeric(gdp_df['Year'])
-
-    return gdp_df
-
-gdp_df = get_gdp_data()
-
-# -----------------------------------------------------------------------------
-# Draw the actual page
-
-# Set the title that appears at the top of the page.
-'''
-# :earth_americas: GDP dashboard
-
-Browse GDP data from the [World Bank Open Data](https://data.worldbank.org/) website. As you'll
-notice, the data only goes to 2022 right now, and datapoints for certain years are often missing.
-But it's otherwise a great (and did I mention _free_?) source of data.
-'''
-
-# Add some spacing
-''
-''
-
-min_value = gdp_df['Year'].min()
-max_value = gdp_df['Year'].max()
-
-from_year, to_year = st.slider(
-    'Which years are you interested in?',
-    min_value=min_value,
-    max_value=max_value,
-    value=[min_value, max_value])
-
-countries = gdp_df['Country Code'].unique()
-
-if not len(countries):
-    st.warning("Select at least one country")
-
-selected_countries = st.multiselect(
-    'Which countries would you like to view?',
-    countries,
-    ['DEU', 'FRA', 'GBR', 'BRA', 'MEX', 'JPN'])
-
-''
-''
-''
-
-# Filter the data
-filtered_gdp_df = gdp_df[
-    (gdp_df['Country Code'].isin(selected_countries))
-    & (gdp_df['Year'] <= to_year)
-    & (from_year <= gdp_df['Year'])
+DEFAULT_ROLES = [
+    "CM",
+    "Project Coordinator",
+    "Site Manager",
+    "Site Assistant",
+    "Estimator",
+    "Safety",
 ]
 
-st.header('GDP over time', divider='gray')
+def percent_to_decimal(x) -> float:
+    """Accepts either 0-1 or 0-100 and returns 0-1."""
+    try:
+        v = float(x)
+    except Exception:
+        return 0.0
+    if v > 1.0:
+        return v / 100.0
+    return v
 
-''
+def money(x) -> str:
+    try:
+        return f"${float(x):,.0f}"
+    except Exception:
+        return "$0"
 
-st.line_chart(
-    filtered_gdp_df,
-    x='Year',
-    y='GDP',
-    color='Country Code',
-)
+def validate_rows(df: pd.DataFrame):
+    warnings = []
+    for i, row in df.iterrows():
+        pre = percent_to_decimal(row.get("Pre %", 0))
+        con = percent_to_decimal(row.get("Con %", 0))
+        post = percent_to_decimal(row.get("Post %", 0))
+        total = pre + con + post
+        if total > 1.0001:
+            warnings.append(
+                f"Row {i+1} ({row.get('Role','(role)')}): Pre+Con+Post = {total*100:.1f}% (should be ≤ 100%)."
+            )
+    return warnings
 
-''
-''
+def compute_costs(df: pd.DataFrame, pre_w: float, con_w: float, post_w: float, burden_pct: float):
+    # Fractions of a year
+    pre_f = pre_w / 52.0
+    con_f = con_w / 52.0
+    post_f = post_w / 52.0
 
+    out = df.copy()
 
-first_year = gdp_df[gdp_df['Year'] == from_year]
-last_year = gdp_df[gdp_df['Year'] == to_year]
+    # Clean numeric columns
+    for col in ["Pre %", "Con %", "Post %", "Salary", "Bonus", "Other"]:
+        if col not in out.columns:
+            out[col] = 0.0
+        out[col] = pd.to_numeric(out[col], errors="coerce").fillna(0.0)
 
-st.header(f'GDP in {to_year}', divider='gray')
+    # Convert % columns to decimals (0-1)
+    out["Pre_dec"] = out["Pre %"].apply(percent_to_decimal)
+    out["Con_dec"] = out["Con %"].apply(percent_to_decimal)
+    out["Post_dec"] = out["Post %"].apply(percent_to_decimal)
 
-''
+    out["Base Annual"] = out["Salary"] + out["Bonus"] + out["Other"]
+    out["Loaded Annual"] = out["Base Annual"] * (1.0 + burden_pct)
 
-cols = st.columns(4)
+    # Portion of year each role is allocated to this project
+    out["Project Year Fraction"] = (
+        out["Pre_dec"] * pre_f
+        + out["Con_dec"] * con_f
+        + out["Post_dec"] * post_f
+    )
 
-for i, country in enumerate(selected_countries):
-    col = cols[i % len(cols)]
+    out["Project Cost"] = out["Loaded Annual"] * out["Project Year Fraction"]
 
-    with col:
-        first_gdp = first_year[first_year['Country Code'] == country]['GDP'].iat[0] / 1000000000
-        last_gdp = last_year[last_year['Country Code'] == country]['GDP'].iat[0] / 1000000000
+    total_payroll_cost = float(out["Project Cost"].sum())
+    return out, total_payroll_cost
 
-        if math.isnan(first_gdp):
-            growth = 'n/a'
-            delta_color = 'off'
-        else:
-            growth = f'{last_gdp / first_gdp:,.2f}x'
-            delta_color = 'normal'
+def required_fee_from_overhead_profit(total_payroll_cost: float, overhead_pct: float, profit_pct: float):
+    """
+    Overhead and profit expressed as % of revenue (fee).
+    required_fee = payroll / (1 - overhead - profit)
+    """
+    denom = 1.0 - overhead_pct - profit_pct
+    if denom <= 0:
+        return None
+    return total_payroll_cost / denom
 
-        st.metric(
-            label=f'{country} GDP',
-            value=f'{last_gdp:,.0f}B',
-            delta=growth,
-            delta_color=delta_color
+# ----------------------------
+# UI
+# ----------------------------
+st.set_page_config(page_title="CM True Cost Calculator", layout="wide")
+st.title("CM True Cost Calculator")
+st.caption("Estimate the loaded CM team cost across project phases and compare to fee proposals.")
+
+with st.expander("How to use", expanded=False):
+    st.markdown(
+        """
+1. Enter **phase durations (weeks)**.
+2. Fill the **team table** (roles, phase % time, and compensation).
+3. Set **burden**, **overhead**, and **profit** assumptions.
+4. Enter **fee proposals** (low/mid/high).
+5. Review **TOTAL COST OF TIME**, and coverage vs payroll and ROM fee.
+        """
+    )
+
+# --------
+# Inputs
+# --------
+left, right = st.columns([1.2, 1.0])
+
+with left:
+    st.subheader("1) Phase Durations (weeks)")
+    c1, c2, c3 = st.columns(3)
+    pre_w = c1.number_input("Pre-Construction", min_value=0.0, value=8.0, step=1.0)
+    con_w = c2.number_input("Construction", min_value=0.0, value=20.0, step=1.0)
+    post_w = c3.number_input("Post-Construction / Closeout", min_value=0.0, value=4.0, step=1.0)
+
+    st.subheader("2) Team & Compensation")
+    st.caption("Phase % can be entered as **0–100** or **0–1**. Example: 30 or 0.30 both work.")
+
+    if "team_df" not in st.session_state:
+        st.session_state.team_df = pd.DataFrame(
+            {
+                "Role": DEFAULT_ROLES,
+                "Pre %":  [30, 30, 10,  0, 80,  0],
+                "Con %":  [50, 80,100,100, 20, 50],
+                "Post %": [20, 10, 10,  0,  0, 50],
+                "Salary": [120000, 70000, 100000, 60000, 90000, 80000],
+                "Bonus":  [10000,   3000,   5000,  2000,  4000,  3000],
+                "Other":  [ 5000,   3000,   4000,  2000,  3000,  2000],
+            }
         )
+
+    team_df = st.data_editor(
+        st.session_state.team_df,
+        use_container_width=True,
+        num_rows="dynamic",
+        column_config={
+            "Role": st.column_config.TextColumn(required=True),
+            "Pre %": st.column_config.NumberColumn(min_value=0.0),
+            "Con %": st.column_config.NumberColumn(min_value=0.0),
+            "Post %": st.column_config.NumberColumn(min_value=0.0),
+            "Salary": st.column_config.NumberColumn(min_value=0.0, format="$%d"),
+            "Bonus": st.column_config.NumberColumn(min_value=0.0, format="$%d"),
+            "Other": st.column_config.NumberColumn(min_value=0.0, format="$%d"),
+        },
+        key="team_editor",
+    )
+    st.session_state.team_df = team_df
+
+    row_warnings = validate_rows(team_df)
+    if row_warnings:
+        st.warning("Check phase allocations:\n\n- " + "\n- ".join(row_warnings))
+
+with right:
+    st.subheader("3) Assumptions")
+    burden_pct = st.number_input("Payroll burden (%)", min_value=0.0, value=15.0, step=0.5) / 100.0
+
+    st.markdown("---")
+    st.subheader("4) Project & Fee Inputs")
+    project_budget = st.number_input("Total project budget ($)", min_value=0.0, value=5_000_000.0, step=50_000.0)
+
+    overhead_pct = st.number_input("Overhead (% of revenue)", min_value=0.0, value=10.0, step=0.5) / 100.0
+    profit_pct = st.number_input("Profit (% of revenue)", min_value=0.0, value=8.0, step=0.5) / 100.0
+
+    if overhead_pct + profit_pct >= 1.0:
+        st.error("Overhead% + Profit% must be less than 100% to compute ROM fee.")
+
+    st.markdown("---")
+    st.subheader("5) Fee Proposals")
+    low_fee = st.number_input("Low fee proposal ($)", min_value=0.0, value=150_000.0, step=10_000.0)
+    mid_fee = st.number_input("Mid fee proposal ($)", min_value=0.0, value=200_000.0, step=10_000.0)
+    high_fee = st.number_input("High fee proposal ($)", min_value=0.0, value=250_000.0, step=10_000.0)
+
+# -------------
+# Calculations
+# -------------
+calc_df, total_payroll_cost = compute_costs(team_df, pre_w, con_w, post_w, burden_pct)
+rom_fee = required_fee_from_overhead_profit(total_payroll_cost, overhead_pct, profit_pct)
+
+# -------------
+# Results
+# -------------
+st.markdown("## Results")
+
+m1, m2, m3, m4 = st.columns(4)
+
+m1.metric("TOTAL COST OF TIME (Payroll)", money(total_payroll_cost))
+
+# Fee as % of project budget (optional but useful)
+fee_mid_pct_budget = (mid_fee / project_budget * 100.0) if project_budget > 0 else 0.0
+m2.metric("Mid Fee as % of Budget", f"{fee_mid_pct_budget:.2f}%")
+
+m3.metric("Burden Assumption", f"{burden_pct*100:.1f}%")
+
+if rom_fee is None:
+    m4.metric("ROM Required Fee", "—")
+else:
+    m4.metric("ROM Required Fee", money(rom_fee))
+
+st.markdown("---")
+
+# Coverage calculations
+def coverage(proposal_fee: float, denom: float):
+    if denom <= 0:
+        return None
+    return proposal_fee / denom * 100.0
+
+pay_cov_low = coverage(low_fee, total_payroll_cost)
+pay_cov_mid = coverage(mid_fee, total_payroll_cost)
+pay_cov_high = coverage(high_fee, total_payroll_cost)
+
+rom_cov_low = coverage(low_fee, rom_fee) if rom_fee else None
+rom_cov_mid = coverage(mid_fee, rom_fee) if rom_fee else None
+rom_cov_high = coverage(high_fee, rom_fee) if rom_fee else None
+
+cA, cB = st.columns([1.2, 0.8])
+
+with cA:
+    st.subheader("Team Cost Breakdown")
+    show_df = calc_df[[
+        "Role", "Salary", "Bonus", "Other",
+        "Loaded Annual", "Project Year Fraction", "Project Cost"
+    ]].copy()
+
+    # Format fraction to %
+    show_df["Project Year Fraction"] = (show_df["Project Year Fraction"] * 100).round(2).astype(str) + "%"
+
+    st.dataframe(
+        show_df,
+        use_container_width=True,
+        hide_index=True,
+        column_config={
+            "Salary": st.column_config.NumberColumn(format="$%d"),
+            "Bonus": st.column_config.NumberColumn(format="$%d"),
+            "Other": st.column_config.NumberColumn(format="$%d"),
+            "Loaded Annual": st.column_config.NumberColumn(format="$%d"),
+            "Project Cost": st.column_config.NumberColumn(format="$%d"),
+        }
+    )
+
+with cB:
+    st.subheader("Coverage Tests")
+
+    cov_table = pd.DataFrame({
+        "Proposal": ["Low", "Mid", "High"],
+        "Fee ($)": [low_fee, mid_fee, high_fee],
+        "% Payroll Covered": [pay_cov_low, pay_cov_mid, pay_cov_high],
+        "% ROM Fee Covered": [rom_cov_low, rom_cov_mid, rom_cov_high],
+    })
+
+    def fmt_pct(x):
+        if x is None:
+            return "—"
+        return f"{x:.1f}%"
+
+    cov_table_display = cov_table.copy()
+    cov_table_display["Fee ($)"] = cov_table_display["Fee ($)"].apply(money)
+    cov_table_display["% Payroll Covered"] = cov_table_display["% Payroll Covered"].apply(fmt_pct)
+    cov_table_display["% ROM Fee Covered"] = cov_table_display["% ROM Fee Covered"].apply(fmt_pct)
+
+    st.table(cov_table_display)
+
+    # Simple interpretation
+    st.markdown("### Interpretation")
+    if total_payroll_cost <= 0:
+        st.info("Enter team and durations to compute payroll cost.")
+    else:
+        if pay_cov_mid is not None and pay_cov_mid < 100:
+            st.warning("Mid proposal does **not** cover payroll cost (below 100%).")
+        else:
+            st.success("Mid proposal covers payroll cost (≥ 100%).")
+
+        if rom_fee is not None:
+            if rom_cov_mid is not None and rom_cov_mid < 100:
+                st.warning("Mid proposal is **below** ROM required fee (overhead/profit not fully covered).")
+            else:
+                st.success("Mid proposal meets/exceeds ROM required fee (covers payroll + overhead + profit).")
+
+st.markdown("---")
+
+# Optional: show raw assumptions and math
+with st.expander("Show calculation details", expanded=False):
+    st.write("Phase fractions of year:")
+    st.write({
+        "Pre": pre_w / 52.0,
+        "Construction": con_w / 52.0,
+        "Post/Closeout": post_w / 52.0,
+    })
+    st.write("ROM fee formula (overhead & profit are % of revenue):")
+    st.latex(r"\text{ROM Fee} = \frac{\text{Payroll Cost}}{1 - \text{Overhead} - \text{Profit}}")
+    st.write({
+        "Payroll Cost": total_payroll_cost,
+        "Overhead %": overhead_pct,
+        "Profit %": profit_pct,
+        "ROM Fee": rom_fee,
+    })
