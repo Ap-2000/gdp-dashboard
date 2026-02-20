@@ -215,9 +215,9 @@ left, right = st.columns([1.2, 1.0])
 with left:
     st.subheader("1) Phase Durations (weeks)")
     c1, c2, c3 = st.columns(3)
-    pre_w = c1.number_input("Pre-Construction", min_value<=0.0, value=0, step=1.0)
-    con_w = c2.number_input("Construction", min_value<=0.0, value=0, step=1.0)
-    post_w = c3.number_input("Post-Construction / Closeout", min_value<=0.0, value=0, step=1.0)
+    pre_w = c1.number_input("Pre-Construction", value=0, step=1.0)
+    con_w = c2.number_input("Construction", value=0, step=1.0)
+    post_w = c3.number_input("Post-Construction / Closeout", value=0, step=1.0)
 
     st.subheader("2) Team & Compensation")
     st.caption("Phase % can be entered as **0–100** or **0–1**. Example: 30 or 0.30 both work.")
