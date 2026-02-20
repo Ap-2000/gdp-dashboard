@@ -148,8 +148,18 @@ with left:
         },
         key="team_editor",
     )
-    st.session_state.team_df = team_df
+   # Commit edits + stabilize values so reruns don't "eat" the first edit
+st.session_state.team_df = team_df.copy()
 
+# If someone clears a cell, Streamlit may produce NaN/None temporarily
+st.session_state.team_df = st.session_state.team_df.fillna(0)
+
+# Force numeric columns to stay numeric (prevents the first edit from being dropped)
+for col in ["Pre %", "Con %", "Post %", "Salary", "Bonus", "Other"]:
+    st.session_state.team_df[col] = (
+        pd.to_numeric(st.session_state.team_df[col], errors="coerce").fillna(0.0)
+    )
+team_df = st.session_state.team_df
   #  row_warnings = validate_rows(team_df)
   #  if row_warnings:
   #      st.warning("Check phase allocations:\n\n- " + "\n- ".join(row_warnings))
@@ -175,13 +185,13 @@ with right:
 
     st.markdown("---")
     st.subheader("5) Fee Proposals")
-low_fee_input = st.text_input("Low fee proposal ($)", value="150 000")
-mid_fee_input = st.text_input("Mid fee proposal ($)", value="200 000")
-high_fee_input = st.text_input("High fee proposal ($)", value="250 000")
+    low_fee_input = st.text_input("Low fee proposal ($)", value="150 000")
+    mid_fee_input = st.text_input("Mid fee proposal ($)", value="200 000")
+    high_fee_input = st.text_input("High fee proposal ($)", value="250 000")
 
-low_fee = float(low_fee_input.replace(" ", "")) if low_fee_input else 0.0
-mid_fee = float(mid_fee_input.replace(" ", "")) if mid_fee_input else 0.0
-high_fee = float(high_fee_input.replace(" ", "")) if high_fee_input else 0.0
+    low_fee = float(low_fee_input.replace(" ", "")) if low_fee_input else 0.0
+    mid_fee = float(mid_fee_input.replace(" ", "")) if mid_fee_input else 0.0
+    high_fee = float(high_fee_input.replace(" ", "")) if high_fee_input else 0.0
 
 # -------------
 # Calculations
