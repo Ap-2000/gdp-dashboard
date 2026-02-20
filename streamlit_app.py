@@ -30,21 +30,19 @@ def money(x) -> str:
     except Exception:
         return "$0"
 def commit_team_editor():
-    # Grab the edited table from the widget state (key="team_editor")
     edited = st.session_state.get("team_editor")
-
     if edited is None:
         return
 
-    # Save as source of truth
     st.session_state.team_df = edited.copy()
 
-    # Clean numeric columns AFTER commit (not during typing)
     numeric_cols = ["Pre %", "Con %", "Post %", "Salary", "Bonus", "Other"]
     for col in numeric_cols:
-        st.session_state.team_df[col] = (
-            pd.to_numeric(st.session_state.team_df[col], errors="coerce").fillna(0.0)
-        )
+        if col in st.session_state.team_df.columns:   # ✅ prevents KeyError
+            st.session_state.team_df[col] = (
+                pd.to_numeric(st.session_state.team_df[col], errors="coerce")
+                .fillna(0.0)
+            )
 def validate_rows(df: pd.DataFrame):
     warnings = []
     for i, row in df.iterrows():
