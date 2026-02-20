@@ -124,7 +124,7 @@ That’s the most visible line item.
 
 But it’s rarely the full cost of delivery.
 
-If a proposed CM fee does not realistically cover the payroll required to properly staff your project in r factor in a reasonable overhead and profit, the cost does not disappear. It simply moves:
+If a proposed CM fee does not realistically cover the payroll required to properly staff your project or factor in a reasonable overhead and profit, the cost does not disappear. It simply moves:
 
 - into trade pricing
 - into contingencies
@@ -135,7 +135,7 @@ If a proposed CM fee does not realistically cover the payroll required to proper
 
 Procurement may know exactly what they are paying the CM.
 
-They often do not know what they are paying elsewhere.
+They often do not know what they are paying elsewhere to cover for an artificially low CM fee.
 
 This calculator brings visibility to that gap.
 
