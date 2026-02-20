@@ -98,7 +98,7 @@ with st.expander("How to use", expanded=False):
     st.markdown(
         """
 1. Enter **phase durations (weeks)**.
-2. Fill the **team table** (roles, phase % time, and compensation).
+2. Fill the **team table** (roles, compensation and phase % time).
 3. Set **burden**, **overhead**, and **profit** assumptions.
 4. Enter **fee proposals** (low/mid/high).
 5. Review **TOTAL COST OF TIME**, and coverage vs payroll and ROM fee.
@@ -174,10 +174,11 @@ with left:
         st.session_state.team_df = pd.DataFrame(
             {
                 "Role": DEFAULT_ROLES,
-                "Pre %":  [0, 0, 0,  0, 0,  0],
-                "Con %":  [0, 0,0,0, 0, 0],
-                "Post %": [0, 0, 0,  0,  0, 0],
                 "Total compensation": [0, 0, 0, 0, 0, 0],
+                "Pre %":  [30, 30, 10,  0, 10, 0],
+                "Con %":  [30, 30, 100, 50, 0, 10],
+                "Post %": [30, 30, 100, 50, 0, 10],
+                
               #  "Bonus":  [0,   0,   0,  0,  0,  0],
               #  "Other":  [ 0,   0,   0,  0,  0,  0],
             }
@@ -279,17 +280,17 @@ cA, cB = st.columns([1.2, 0.8])
 with cA:
     st.subheader("Team Cost Breakdown")
     show_df = calc_df[[
-        "Role", "Total compensation", # "Bonus", "Other",
-        "Loaded Annual", "Project Year Fraction", "Project Cost"
+        "Role",# "Total compensation", # "Bonus", "Other","Loaded Annual", 
+        "Project Year Fraction", "Project Cost"
     ]].copy()
 
     # Format fraction to %
     show_df["Project Year Fraction"] = (show_df["Project Year Fraction"] * 100).round(2).astype(str) + "%"
 # Apply space formatting to currency columns
-    show_df["Total compensation"] = show_df["Total compensation"].apply(money)
+   # show_df["Total compensation"] = show_df["Total compensation"].apply(money)
    # show_df["Bonus"] = show_df["Bonus"].apply(money)
   #  show_df["Other"] = show_df["Other"].apply(money)
-    show_df["Loaded Annual"] = show_df["Loaded Annual"].apply(money)
+ #   show_df["Loaded Annual"] = show_df["Loaded Annual"].apply(money)
     show_df["Project Cost"] = show_df["Project Cost"].apply(money)
 
     st.dataframe(
