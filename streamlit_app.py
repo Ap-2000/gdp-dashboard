@@ -322,9 +322,9 @@ pay_cov_low = coverage(low_fee, total_payroll_cost)
 pay_cov_mid = coverage(mid_fee, total_payroll_cost)
 pay_cov_high = coverage(high_fee, total_payroll_cost)
 
-rom_cov_low = coverage(low_fee, rom_fee) if rom_fee else None
-rom_cov_mid = coverage(mid_fee, rom_fee) if rom_fee else None
-rom_cov_high = coverage(high_fee, rom_fee) if rom_fee else None
+rom_cov_low  = coverage(low_fee, total_fee) if total_fee else None
+rom_cov_mid  = coverage(mid_fee, total_fee) if total_fee else None
+rom_cov_high = coverage(high_fee, total_fee) if total_fee else None
 
 cA, cB = st.columns([1.2, 0.8])
 
