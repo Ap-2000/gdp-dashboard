@@ -175,9 +175,13 @@ with right:
 
     st.markdown("---")
     st.subheader("5) Fee Proposals")
-    low_fee = st.number_input("Low fee proposal ($)", min_value=0.0, value=150_000.0, step=10_000.0)
-    mid_fee = st.number_input("Mid fee proposal ($)", min_value=0.0, value=200_000.0, step=10_000.0)
-    high_fee = st.number_input("High fee proposal ($)", min_value=0.0, value=250_000.0, step=10_000.0)
+low_fee_input = st.text_input("Low fee proposal ($)", value="150 000")
+mid_fee_input = st.text_input("Mid fee proposal ($)", value="200 000")
+high_fee_input = st.text_input("High fee proposal ($)", value="250 000")
+
+low_fee = float(low_fee_input.replace(" ", "")) if low_fee_input else 0.0
+mid_fee = float(mid_fee_input.replace(" ", "")) if mid_fee_input else 0.0
+high_fee = float(high_fee_input.replace(" ", "")) if high_fee_input else 0.0
 
 # -------------
 # Calculations
