@@ -38,7 +38,6 @@ def commit_team_editor():
     edited = edited.copy()
 
     # If someone clears a cell, Streamlit may temporarily create NaN/None
-    edited = edited.fillna(0)
 
     # Force numeric columns back to numeric (prevents disappearing edits)
     numeric_cols = ["Pre %", "Con %", "Post %", "Salary", "Bonus", "Other"]
