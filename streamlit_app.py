@@ -29,20 +29,25 @@ def money(x) -> str:
         return f"${float(x):,.0f}".replace(",", " ")
     except Exception:
         return "$0"
+    
 def commit_team_editor():
     edited = st.session_state.get("team_editor")
+
+    # If the editor hasn't produced a dataframe yet, do nothing
     if edited is None:
         return
 
-    st.session_state.team_df = edited.copy()
+    # Save edited table as source of truth
+    df = edited.copy()
 
+    # Clean numeric cols safely
     numeric_cols = ["Pre %", "Con %", "Post %", "Salary", "Bonus", "Other"]
     for col in numeric_cols:
-        if col in st.session_state.team_df.columns:   # ✅ prevents KeyError
-            st.session_state.team_df[col] = (
-                pd.to_numeric(st.session_state.team_df[col], errors="coerce")
-                .fillna(0.0)
-            )
+        if col in df.columns:
+            df[col] = pd.to_numeric(df[col], errors="coerce").fillna(0.0)
+
+    st.session_state.team_df = df
+
 def validate_rows(df: pd.DataFrame):
     warnings = []
     for i, row in df.iterrows():
