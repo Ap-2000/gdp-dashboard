@@ -30,22 +30,6 @@ def money(x) -> str:
     except Exception:
         return "$0"
 
-def commit_team_editor():
-    # Pull the edited dataframe from Streamlit's widget state
-    edited = st.session_state["team_editor"]
-
-    # Make a safe copy
-    edited = edited.copy()
-
-    # If someone clears a cell, Streamlit may temporarily create NaN/None
-
-    # Force numeric columns back to numeric (prevents disappearing edits)
-    numeric_cols = ["Pre %", "Con %", "Post %", "Salary", "Bonus", "Other"]
-    for col in numeric_cols:
-        edited[col] = pd.to_numeric(edited[col], errors="coerce").fillna(0.0)
-
-    st.session_state.team_df = edited
-    
 def validate_rows(df: pd.DataFrame):
     warnings = []
     for i, row in df.iterrows():
@@ -163,7 +147,6 @@ with left:
         "Other": st.column_config.NumberColumn(min_value=0.0),
     },
     key="team_editor",
-    on_change=commit_team_editor,
 )
 
    
