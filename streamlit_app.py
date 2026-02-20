@@ -142,13 +142,16 @@ with left:
             "Pre %": st.column_config.NumberColumn(min_value=0.0),
             "Con %": st.column_config.NumberColumn(min_value=0.0),
             "Post %": st.column_config.NumberColumn(min_value=0.0),
-            "Salary": st.column_config.NumberColumn(min_value=0.0, format="$%d"),
-            "Bonus": st.column_config.NumberColumn(min_value=0.0, format="$%d"),
-            "Other": st.column_config.NumberColumn(min_value=0.0, format="$%d"),
+            "Salary": st.column_config.NumberColumn(min_value=0.0),
+            "Bonus": st.column_config.NumberColumn(min_value=0.0),
+            "Other": st.column_config.NumberColumn(min_value=0.0),
         },
         key="team_editor",
     )
     st.session_state.team_df = team_df
+team_df["Other"] = team_df["Other"].apply(money)
+team_df["Bonus"] = team_df["Bonus"].apply(money)
+team_df["Salary"] = team_df["Salary"].apply(money)
 
    
   #  row_warnings = validate_rows(team_df)
