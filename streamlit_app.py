@@ -26,7 +26,7 @@ def percent_to_decimal(x) -> float:
 
 def money(x) -> str:
     try:
-        return f"${float(x):,.0f}"
+        return f"${float(x):,.0f}".replace(",", " ")
     except Exception:
         return "$0"
 
@@ -124,12 +124,12 @@ with left:
         st.session_state.team_df = pd.DataFrame(
             {
                 "Role": DEFAULT_ROLES,
-                "Pre %":  [30, 30, 10,  0, 80,  0],
-                "Con %":  [50, 80,100,100, 20, 50],
-                "Post %": [20, 10, 10,  0,  0, 50],
-                "Salary": [120000, 70000, 100000, 60000, 90000, 80000],
-                "Bonus":  [10000,   3000,   5000,  2000,  4000,  3000],
-                "Other":  [ 5000,   3000,   4000,  2000,  3000,  2000],
+                "Pre %":  [0, 0, 0,  0, 0,  0],
+                "Con %":  [0, 0,0,0, 0, 0],
+                "Post %": [0, 0, 0,  0,  0, 0],
+                "Salary": [0, 0, 0, 0, 0, 0],
+                "Bonus":  [0,   0,   0,  0,  0,  0],
+                "Other":  [ 0,   0,   0,  0,  0,  0],
             }
         )
 
@@ -189,16 +189,15 @@ m1, m2, m3, m4 = st.columns(4)
 
 m1.metric("TOTAL COST OF TIME (Payroll)", money(total_payroll_cost))
 
-# Fee as % of project budget (optional but useful)
-fee_mid_pct_budget = (mid_fee / project_budget * 100.0) if project_budget > 0 else 0.0
-m2.metric("Mid Fee as % of Budget", f"{fee_mid_pct_budget:.2f}%")
+# ---- New metrics ----
 
-m3.metric("Burden Assumption", f"{burden_pct*100:.1f}%")
+overhead_dollars = project_budget * overhead_pct
+profit_dollars = project_budget * profit_pct
+total_fee = total_payroll_cost + overhead_dollars + profit_dollars
 
-if rom_fee is None:
-    m4.metric("ROM Required Fee", "—")
-else:
-    m4.metric("ROM Required Fee", money(rom_fee))
+m2.metric("Overhead ($)", money(overhead_dollars))
+m3.metric("Profit (%)", f"{profit_pct*100:.1f}%")
+m4.metric("Total Fee ($)", money(total_fee))
 
 st.markdown("---")
 
@@ -227,18 +226,17 @@ with cA:
 
     # Format fraction to %
     show_df["Project Year Fraction"] = (show_df["Project Year Fraction"] * 100).round(2).astype(str) + "%"
+# Apply space formatting to currency columns
+    show_df["Salary"] = show_df["Salary"].apply(money)
+    show_df["Bonus"] = show_df["Bonus"].apply(money)
+    show_df["Other"] = show_df["Other"].apply(money)
+    show_df["Loaded Annual"] = show_df["Loaded Annual"].apply(money)
+    show_df["Project Cost"] = show_df["Project Cost"].apply(money)
 
     st.dataframe(
         show_df,
         use_container_width=True,
         hide_index=True,
-        column_config={
-            "Salary": st.column_config.NumberColumn(format="$%d"),
-            "Bonus": st.column_config.NumberColumn(format="$%d"),
-            "Other": st.column_config.NumberColumn(format="$%d"),
-            "Loaded Annual": st.column_config.NumberColumn(format="$%d"),
-            "Project Cost": st.column_config.NumberColumn(format="$%d"),
-        }
     )
 
 with cB:
