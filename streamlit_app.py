@@ -30,23 +30,6 @@ def money(x) -> str:
     except Exception:
         return "$0"
     
-def commit_team_editor():
-    edited = st.session_state.get("team_editor")  # <-- MUST match key="team_editor"
-    if edited is None:
-        return
-
-    if not isinstance(edited, pd.DataFrame):
-        edited = pd.DataFrame(edited)
-
-    df = edited.copy()
-
-    numeric_cols = ["Pre %", "Con %", "Post %", "Salary", "Bonus", "Other"]
-    for col in numeric_cols:
-        if col in df.columns:
-            df[col] = pd.to_numeric(df[col], errors="coerce").fillna(0.0)
-
-    st.session_state.team_df = df
-
 def validate_rows(df: pd.DataFrame):
     warnings = []
     for i, row in df.iterrows():
@@ -159,14 +142,17 @@ with left:
             "Pre %": st.column_config.NumberColumn(min_value=0.0),
             "Con %": st.column_config.NumberColumn(min_value=0.0),
             "Post %": st.column_config.NumberColumn(min_value=0.0),
-            "Salary": st.column_config.NumberColumn(min_value=0.0),
-            "Bonus": st.column_config.NumberColumn(min_value=0.0),
-            "Other": st.column_config.NumberColumn(min_value=0.0),
+            "Salary": st.column_config.NumberColumn(min_value=0.0, format="$%d"),
+            "Bonus": st.column_config.NumberColumn(min_value=0.0, format="$%d"),
+            "Other": st.column_config.NumberColumn(min_value=0.0, format="$%d"),
         },
         key="team_editor",
-        on_change=commit_team_editor,
     )
-    team_df = st.session_state.team_df
+    st.session_state.team_df = team_df
+
+    row_warnings = validate_rows(team_df)
+    if row_warnings:
+        st.warning("Check phase allocations:\n\n- " + "\n- ".join(row_warnings))
   #  row_warnings = validate_rows(team_df)
   #  if row_warnings:
   #      st.warning("Check phase allocations:\n\n- " + "\n- ".join(row_warnings))
