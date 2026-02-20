@@ -29,6 +29,23 @@ def money(x) -> str:
         return f"${float(x):,.0f}".replace(",", " ")
     except Exception:
         return "$0"
+
+def commit_team_editor():
+    # Pull the edited dataframe from Streamlit's widget state
+    edited = st.session_state["team_editor"]
+
+    # Make a safe copy
+    edited = edited.copy()
+
+    # If someone clears a cell, Streamlit may temporarily create NaN/None
+    edited = edited.fillna(0)
+
+    # Force numeric columns back to numeric (prevents disappearing edits)
+    numeric_cols = ["Pre %", "Con %", "Post %", "Salary", "Bonus", "Other"]
+    for col in numeric_cols:
+        edited[col] = pd.to_numeric(edited[col], errors="coerce").fillna(0.0)
+
+    st.session_state.team_df = edited
     
 def validate_rows(df: pd.DataFrame):
     warnings = []
@@ -134,24 +151,21 @@ with left:
         )
 
     team_df = st.data_editor(
-        st.session_state.team_df,
-        use_container_width=True,
-        num_rows="dynamic",
-        column_config={
-            "Role": st.column_config.TextColumn(required=True),
-            "Pre %": st.column_config.NumberColumn(min_value=0.0),
-            "Con %": st.column_config.NumberColumn(min_value=0.0),
-            "Post %": st.column_config.NumberColumn(min_value=0.0),
-            "Salary": st.column_config.NumberColumn(min_value=0.0),
-            "Bonus": st.column_config.NumberColumn(min_value=0.0),
-            "Other": st.column_config.NumberColumn(min_value=0.0),
-        },
-        key="team_editor",
-    )
-    st.session_state.team_df = team_df
-team_df["Other"] = team_df["Other"].apply(money)
-team_df["Bonus"] = team_df["Bonus"].apply(money)
-team_df["Salary"] = team_df["Salary"].apply(money)
+    st.session_state.team_df,
+    use_container_width=True,
+    num_rows="dynamic",
+    column_config={
+        "Role": st.column_config.TextColumn(required=True),
+        "Pre %": st.column_config.NumberColumn(min_value=0.0),
+        "Con %": st.column_config.NumberColumn(min_value=0.0),
+        "Post %": st.column_config.NumberColumn(min_value=0.0),
+        "Salary": st.column_config.NumberColumn(min_value=0.0),
+        "Bonus": st.column_config.NumberColumn(min_value=0.0),
+        "Other": st.column_config.NumberColumn(min_value=0.0),
+    },
+    key="team_editor",
+    on_change=commit_team_editor,
+)
 
    
   #  row_warnings = validate_rows(team_df)
