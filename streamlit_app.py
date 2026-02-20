@@ -105,6 +105,108 @@ with st.expander("How to use", expanded=False):
         """
     )
 
+with st.expander("What is the real cost of construction management", expanded=False):
+    st.markdown(
+        """
+Why we made the bold move to say “no” to traditional Construction Management Procurement Models & the questions end clients should be asking.
+In Construction Management, procurement often treats the “CM Fee” as the main measure of cost.
+That’s understandable, because it’s the most visible number.
+But it’s also the trap.
+A Construction Manager is fundamentally a service provider.  Their biggest cost isn’t materials.  It isn’t equipment.  It is people and time.  The leadership, coordination, field presence, admin, safety, estimating support, and the day-to-day problem solving required to move a project from concept to closeout.
+Here’s the issue we saw repeatedly when large procurement engines ran CM RFPs:
+They weren’t actually comparing total cost of delivery.
+They were comparing the one line item they could see.
+So the debate became: “Your fee is too high.”
+When the real question should have been: “Where is the rest of the CM cost being paid.  And more importantly, by whom?”
+Because if a proposed CM fee does not cover even the basic, loaded payroll required to do the job properly, the cost doesn’t disappear. It simply shows up somewhere else:
+•	buried in trade pricing and contingencies
+•	absorbed through change exposure and coordination drift
+•	paid for through schedule inefficiency and extended general conditions
+•	carried by the owner through risk, uncertainty, and decision fatigue
+•	or diluted through under-resourcing (which feels “cheaper” until it isn’t)
+This calculator exists to bring visibility to what is normally hidden.
+Not to “win” an argument on fee.   But to make sure the owner is asking the right question:
+What is the true cost of Construction Management delivery, and where is it being paid?
+That realization is one of the reasons Flat Iron exited traditional CM and moved fully into progressive design build: single-point accountability, clarity of cost, and fewer places for risk (and money) to hide.
+
+
+
+
+
+How to use the calculator (simple step-by-step)
+Purpose: Estimate the real payroll cost of a properly resourced CM team for your project, then compare that to the fee proposals you’re receiving.
+Step 1 — Set the team you believe is required
+In the “Team” section, confirm which roles you think are actually needed for a project of your size and complexity (e.g., CM, PC, Site Manager, Site Assistant, Estimator, Safety).  
+Step 2 — Allocate % of time by phase (green inputs)
+For each role, enter the % of their weekly time required in:
+•	Pre-Construction
+•	Construction
+•	Post-Construction
+This forces the conversation to get real about staffing instead of vague statements like “we’ll support as required.”  Following are guidelines to use, but feel free to use your own educated guess.  Construction Managers for workplace projects => 20,000 SF typically require
+•	30% time from a Construction Manager for full project cycle
+•	30% time from a Project Coordinator for full project cycle
+•	100% time from a Site Manager for construction and post construction and some support in pre-construction.
+•	80 to 120 hours of estimating time.
+•	A health and safety site visit weekly
+
+Step 3 — Estimate phase durations (weeks)
+Enter how many weeks you expect each phase to last. The sheet converts that into the fraction of a year.
+Step 4 — Enter loaded compensation (salary + burden)
+Input your best assumption for each role:
+•	Salary
+•	Bonus
+•	Other (auto/phone/RRSP/etc.)
+•	Burden (the sheet is already assuming payroll burden for EI, CPP, Etc. at 15%)
+This yields a loaded annual cost per role.
+Step 5 — Review “TOTAL COST OF TIME”
+This is the sheet’s estimate of the true payroll cost of the CM team’s time allocated to your project across all phases.
+Step 6 — Enter your total project budget 
+Input your total project budget.   
+Step 7 — Enter what you think the Construction Managers other % Overhead is (% of revenue)
+Make an assumption on company overhead costs as a percent of revenue.  This is overhead above and beyond the direct project staff (insurance, rent, utlilities, support staff, leadership / management, professional services, etc.)  
+Step 8 — Enter what you think the Construction Managers % profit is (% of revenue)
+Make an assumption on the company profit as a percent of revenue.   How much do the actually make on the job to retain as profit in the business.   
+Step 9 — Enter the CM fees you received from various bidders (low/mid/high)
+Populate the proposal amounts you’re seeing.
+Step 10 — Read the two coverage tests
+The sheet calculates:
+•	% of Payroll CM Team Covered in Fee
+•	% of ROM CM Fee Covered in Proposals
+If proposals are below 100% payroll coverage, the key question becomes unavoidable:
+Where is the remaining CM cost being paid? And do you, as the client, actually know?
+
+ 
+IGNORE FOR NOW Questions to ask your shortlist of CMs (or your third-party PM)
+Use these exactly as written—short, direct, and hard to dodge.
+A. Staffing reality (who is actually doing the work?)
+1.	Name the specific roles assigned to this project (CM, PC, Site, Safety, Estimating, Closeout).
+2.	For each role: what % of their time is allocated in Pre-Con / Construction / Closeout?
+3.	Are these people dedicated or shared across multiple projects? How many?
+4.	Who is the day-to-day decision maker when issues hit site? (Name + authority level.)
+5.	Who owns trade coordination (not just meetings—actual clash, scope gaps, RFIs, sequencing)?
+B. Fee integrity (does the fee cover the work?)
+6.	Does your proposed fee fully cover the payroll cost of the team you just described?
+7.	If not, where is the gap carried (trade pricing, contingency, allowances, change, or owner risk)?
+8.	What portion of your fee is tied to actual staffing vs “OH&P”?
+9.	If schedule extends, what happens to your staffing cost—is it included or extra?
+C. Risk and accountability (where does risk go to hide?)
+10.	In CM, who is accountable for scope gaps between consultants and trades?
+11.	What are the top 5 most common causes of cost growth on your CM projects—and how are they priced?
+12.	When trades miss something, what is your standard mechanism: change, contingency draw, or owner decision?
+13.	Who owns the risk of late decisions / incomplete design—and what’s the cost impact mechanism?
+D. Truth-in-comparison (what procurement misses)
+14.	If we select you because your fee is lower, what must be true operationally for you to still deliver well?
+15.	What do you stop doing (or do less of) when fees are compressed?
+16.	Show us a real example where you delivered a project with minimal changes—what made it work?
+E. Questions for your third-party PM advising you
+17.	Are you comparing CM fee only, or total cost of delivery risk?
+18.	Where in your model is the cost of coordination failure captured (scope gaps, rework, schedule drag)?
+19.	If the CM fee doesn’t cover staffing, what is your belief about where the cost is landing?
+20.	What’s your plan to ensure true apples-to-apples staffing across bidders?
+
+        """
+    )
+
 # --------
 # Inputs
 # --------
