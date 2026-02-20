@@ -150,9 +150,9 @@ with left:
     )
     st.session_state.team_df = team_df
 
-    row_warnings = validate_rows(team_df)
-    if row_warnings:
-        st.warning("Check phase allocations:\n\n- " + "\n- ".join(row_warnings))
+  #  row_warnings = validate_rows(team_df)
+  #  if row_warnings:
+  #      st.warning("Check phase allocations:\n\n- " + "\n- ".join(row_warnings))
 
 with right:
     st.subheader("3) Assumptions")
@@ -160,7 +160,12 @@ with right:
 
     st.markdown("---")
     st.subheader("4) Project & Fee Inputs")
-    project_budget = st.number_input("Total project budget ($)", min_value=0.0, value=5_000_000.0, step=50_000.0)
+    budget_input = st.text_input(
+    "Total project budget ($)",
+    value="20 000 000"
+    )
+
+    project_budget = float(budget_input.replace(" ", "")) if budget_input else 0.0
 
     overhead_pct = st.number_input("Overhead (% of revenue)", min_value=0.0, value=10.0, step=0.5) / 100.0
     profit_pct = st.number_input("Profit (% of revenue)", min_value=0.0, value=8.0, step=0.5) / 100.0
@@ -196,7 +201,7 @@ profit_dollars = project_budget * profit_pct
 total_fee = total_payroll_cost + overhead_dollars + profit_dollars
 
 m2.metric("Overhead ($)", money(overhead_dollars))
-m3.metric("Profit (%)", f"{profit_pct*100:.1f}%")
+m3.metric("Profit ($)", money(profit_dollars))
 m4.metric("Total Fee ($)", money(total_fee))
 
 st.markdown("---")
