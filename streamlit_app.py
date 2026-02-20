@@ -52,7 +52,7 @@ def compute_costs(df: pd.DataFrame, pre_w: float, con_w: float, post_w: float, b
     out = df.copy()
 
     # Clean numeric columns
-    for col in ["Pre %", "Con %", "Post %", "Salary", "Bonus", "Other"]:
+    for col in ["Pre %", "Con %", "Post %", "Total compensation"]:
         if col not in out.columns:
             out[col] = 0.0
         out[col] = pd.to_numeric(out[col], errors="coerce").fillna(0.0)
@@ -62,7 +62,7 @@ def compute_costs(df: pd.DataFrame, pre_w: float, con_w: float, post_w: float, b
     out["Con_dec"] = out["Con %"].apply(percent_to_decimal)
     out["Post_dec"] = out["Post %"].apply(percent_to_decimal)
 
-    out["Base Annual"] = out["Salary"] + out["Bonus"] + out["Other"]
+    out["Base Annual"] = out["Total compensation"] #+ out["Bonus"] + out["Other"]
     out["Loaded Annual"] = out["Base Annual"] * (1.0 + burden_pct)
 
     # Portion of year each role is allocated to this project
@@ -127,9 +127,9 @@ with left:
                 "Pre %":  [0, 0, 0,  0, 0,  0],
                 "Con %":  [0, 0,0,0, 0, 0],
                 "Post %": [0, 0, 0,  0,  0, 0],
-                "Salary": [0, 0, 0, 0, 0, 0],
-                "Bonus":  [0,   0,   0,  0,  0,  0],
-                "Other":  [ 0,   0,   0,  0,  0,  0],
+                "Total compensation": [0, 0, 0, 0, 0, 0],
+              #  "Bonus":  [0,   0,   0,  0,  0,  0],
+              #  "Other":  [ 0,   0,   0,  0,  0,  0],
             }
         )
 
@@ -142,9 +142,9 @@ with left:
         "Pre %": st.column_config.NumberColumn(min_value=0.0),
         "Con %": st.column_config.NumberColumn(min_value=0.0),
         "Post %": st.column_config.NumberColumn(min_value=0.0),
-        "Salary": st.column_config.NumberColumn(min_value=0.0, format="%.0f"),
-        "Bonus": st.column_config.NumberColumn(min_value=0.0, format="%.0f"),
-        "Other": st.column_config.NumberColumn(min_value=0.0, format="%.0f"),
+        "Total compensation": st.column_config.NumberColumn(min_value=0.0, format="%.0f"),
+      #  "Bonus": st.column_config.NumberColumn(min_value=0.0, format="%.0f"),
+      #  "Other": st.column_config.NumberColumn(min_value=0.0, format="%.0f"),
     },
     key="team_editor",
 )
@@ -229,16 +229,16 @@ cA, cB = st.columns([1.2, 0.8])
 with cA:
     st.subheader("Team Cost Breakdown")
     show_df = calc_df[[
-        "Role", "Salary", "Bonus", "Other",
+        "Role", "Total compensation", # "Bonus", "Other",
         "Loaded Annual", "Project Year Fraction", "Project Cost"
     ]].copy()
 
     # Format fraction to %
     show_df["Project Year Fraction"] = (show_df["Project Year Fraction"] * 100).round(2).astype(str) + "%"
 # Apply space formatting to currency columns
-    show_df["Salary"] = show_df["Salary"].apply(money)
-    show_df["Bonus"] = show_df["Bonus"].apply(money)
-    show_df["Other"] = show_df["Other"].apply(money)
+    show_df["Total compensation"] = show_df["Total compensation"].apply(money)
+   # show_df["Bonus"] = show_df["Bonus"].apply(money)
+  #  show_df["Other"] = show_df["Other"].apply(money)
     show_df["Loaded Annual"] = show_df["Loaded Annual"].apply(money)
     show_df["Project Cost"] = show_df["Project Cost"].apply(money)
 
