@@ -31,16 +31,15 @@ def money(x) -> str:
         return "$0"
     
 def commit_team_editor():
-    edited = st.session_state.get("team_editor")
-
-    # If the editor hasn't produced a dataframe yet, do nothing
+    edited = st.session_state.get("team_editor")  # <-- MUST match key="team_editor"
     if edited is None:
         return
 
-    # Save edited table as source of truth
+    if not isinstance(edited, pd.DataFrame):
+        edited = pd.DataFrame(edited)
+
     df = edited.copy()
 
-    # Clean numeric cols safely
     numeric_cols = ["Pre %", "Con %", "Post %", "Salary", "Bonus", "Other"]
     for col in numeric_cols:
         if col in df.columns:
