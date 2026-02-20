@@ -29,7 +29,22 @@ def money(x) -> str:
         return f"${float(x):,.0f}".replace(",", " ")
     except Exception:
         return "$0"
+def commit_team_editor():
+    # Grab the edited table from the widget state (key="team_editor")
+    edited = st.session_state.get("team_editor")
 
+    if edited is None:
+        return
+
+    # Save as source of truth
+    st.session_state.team_df = edited.copy()
+
+    # Clean numeric columns AFTER commit (not during typing)
+    numeric_cols = ["Pre %", "Con %", "Post %", "Salary", "Bonus", "Other"]
+    for col in numeric_cols:
+        st.session_state.team_df[col] = (
+            pd.to_numeric(st.session_state.team_df[col], errors="coerce").fillna(0.0)
+        )
 def validate_rows(df: pd.DataFrame):
     warnings = []
     for i, row in df.iterrows():
@@ -147,19 +162,9 @@ with left:
             "Other": st.column_config.NumberColumn(min_value=0.0),
         },
         key="team_editor",
+        on_change=commit_team_editor,
     )
-   # Commit edits + stabilize values so reruns don't "eat" the first edit
-st.session_state.team_df = team_df.copy()
-
-# If someone clears a cell, Streamlit may produce NaN/None temporarily
-st.session_state.team_df = st.session_state.team_df.fillna(0)
-
-# Force numeric columns to stay numeric (prevents the first edit from being dropped)
-for col in ["Pre %", "Con %", "Post %", "Salary", "Bonus", "Other"]:
-    st.session_state.team_df[col] = (
-        pd.to_numeric(st.session_state.team_df[col], errors="coerce").fillna(0.0)
-    )
-team_df = st.session_state.team_df
+    team_df = st.session_state.team_df
   #  row_warnings = validate_rows(team_df)
   #  if row_warnings:
   #      st.warning("Check phase allocations:\n\n- " + "\n- ".join(row_warnings))
