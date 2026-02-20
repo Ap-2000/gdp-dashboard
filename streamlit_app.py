@@ -142,9 +142,9 @@ with left:
         "Pre %": st.column_config.NumberColumn(min_value=0.0),
         "Con %": st.column_config.NumberColumn(min_value=0.0),
         "Post %": st.column_config.NumberColumn(min_value=0.0),
-        "Salary": st.column_config.NumberColumn(min_value=0.0),
-        "Bonus": st.column_config.NumberColumn(min_value=0.0),
-        "Other": st.column_config.NumberColumn(min_value=0.0),
+        "Salary": st.column_config.NumberColumn(min_value=0.0, format="%,.0f"),
+        "Bonus": st.column_config.NumberColumn(min_value=0.0, format="%,.0f"),
+        "Other": st.column_config.NumberColumn(min_value=0.0, format="%,.0f"),
     },
     key="team_editor",
 )
