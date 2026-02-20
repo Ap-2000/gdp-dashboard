@@ -150,9 +150,7 @@ with left:
     )
     st.session_state.team_df = team_df
 
-    row_warnings = validate_rows(team_df)
-    if row_warnings:
-        st.warning("Check phase allocations:\n\n- " + "\n- ".join(row_warnings))
+   
   #  row_warnings = validate_rows(team_df)
   #  if row_warnings:
   #      st.warning("Check phase allocations:\n\n- " + "\n- ".join(row_warnings))
