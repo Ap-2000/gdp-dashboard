@@ -277,30 +277,30 @@ rom_cov_high = coverage(high_fee, total_fee) if total_fee else None
 
 cA, cB = st.columns([1.2, 0.8])
 
-with cA:
-    st.subheader("Team Cost Breakdown")
-    show_df = calc_df[[
-        "Role",# "Total compensation", # "Bonus", "Other","Loaded Annual", 
-        "Project Year Fraction", "Project Cost"
-    ]].copy()
+# with cA:
+   # st.subheader("Team Cost Breakdown")
+   # show_df = calc_df[[
+   #     "Role",# "Total compensation", # "Bonus", "Other","Loaded Annual", 
+   #     "Project Year Fraction", "Project Cost"
+   # ]].copy()
 
     # Format fraction to %
-    show_df["Project Year Fraction"] = (show_df["Project Year Fraction"] * 100).round(2).astype(str) + "%"
+  #  show_df["Project Year Fraction"] = (show_df["Project Year Fraction"] * 100).round(2).astype(str) + "%"
 # Apply space formatting to currency columns
    # show_df["Total compensation"] = show_df["Total compensation"].apply(money)
    # show_df["Bonus"] = show_df["Bonus"].apply(money)
   #  show_df["Other"] = show_df["Other"].apply(money)
  #   show_df["Loaded Annual"] = show_df["Loaded Annual"].apply(money)
-    show_df["Project Cost"] = show_df["Project Cost"].apply(money)
+   # show_df["Project Cost"] = show_df["Project Cost"].apply(money)
 
-    st.dataframe(
-        show_df,
-        use_container_width=True,
-        hide_index=True,
-    )
+   # st.dataframe(
+   #     show_df,
+    #    use_container_width=True,
+   #     hide_index=True,
+   # )
 
 with cB:
-    st.subheader("Coverage Tests")
+    st.subheader("**COVERAGE TESTS**")
 
     cov_table = pd.DataFrame({
         "Proposal": ["Low", "Mid", "High"],
