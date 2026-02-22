@@ -174,10 +174,10 @@ with left:
         st.session_state.team_df = pd.DataFrame(
             {
                 "Role": DEFAULT_ROLES,
-                "Pre %":  [0, 0, 0,  0, 0,  0],
-                "Con %":  [0, 0,0,0, 0, 0],
-                "Post %": [0, 0, 0,  0,  0, 0],
                 "Total compensation": [0, 0, 0, 0, 0, 0],
+                "Pre %":  [30, 30, 10,  0, 15,  0],
+                "Con %":  [30, 30, 100, 50, 0, 10],
+                "Post %": [30, 30, 100, 50,  0, 10],
               #  "Bonus":  [0,   0,   0,  0,  0,  0],
               #  "Other":  [ 0,   0,   0,  0,  0,  0],
             }
