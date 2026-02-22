@@ -217,6 +217,20 @@ with right:
 
     project_budget = float(budget_input.replace(" ", "")) if budget_input else 0.0
 
+    with st.expander("Guidelines for Estimating Company Overhead and Profit", expanded=False):
+        st.markdown(
+        """
+        For a typical construction management firm not just a single project,
+        consider what percentage of total revenue is required to cover company-wide 
+        overhead expenses and profit. Overhead should account for the full cost of operating 
+        the business, including leadership, support staff, rent, utilities, fleet, professional 
+        services, office expenses, and other corporate costs. Similarly, profit should reflect
+        what the business as a whole is expected to earn. Below, estimate what you believe the 
+        overhead expenses are as a percentage of total revenue, and then estimate what you believe 
+        the firm earns in profit as a percentage of revenue.
+        """
+    )
+
     overhead_pct = st.number_input("Overhead (% of revenue)", min_value=0.0, value=0.0, step=0.5) / 100.0
     profit_pct = st.number_input("Profit (% of revenue)", min_value=0.0, value=0.0, step=0.5) / 100.0
 
