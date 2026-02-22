@@ -297,7 +297,32 @@ with cB:
     cov_table_display["% Payroll Covered"] = cov_table_display["% Payroll Covered"].apply(fmt_pct)
     cov_table_display["% ROM Fee Covered"] = cov_table_display["% ROM Fee Covered"].apply(fmt_pct)
 
-    st.table(cov_table_display)
+    def highlight_coverage(val):
+        try:
+            # Handle dash case
+            if val in ["—", "-", None]:
+                return ""
+
+            # Remove % and convert to float
+            num = float(str(val).replace('%', ''))
+
+            if num < 100:
+                return "background-color: #5A1E1E; color: white;"  # red
+            else:
+                return "background-color: #1E5A3A; color: white;"  # green
+        except:
+            return ""
+
+    styled_table = cov_table_display.style.map(
+        highlight_coverage,
+        subset=["% Payroll Covered", "% ROM Fee Covered"]
+)
+
+    st.dataframe(
+        styled_table,
+        use_container_width=True,
+        hide_index=True
+)
 
     # Simple interpretation
     st.markdown("### Interpretation")
