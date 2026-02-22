@@ -189,10 +189,10 @@ with left:
     num_rows="dynamic",
     column_config={
         "Role": st.column_config.TextColumn(required=True),
+        "Total compensation": st.column_config.NumberColumn(min_value=0.0, format="$%d"),
         "Pre %": st.column_config.NumberColumn(min_value=0.0),
         "Con %": st.column_config.NumberColumn(min_value=0.0),
         "Post %": st.column_config.NumberColumn(min_value=0.0),
-        "Total compensation": st.column_config.NumberColumn(min_value=0.0, format="%.0f"),
       #  "Bonus": st.column_config.NumberColumn(min_value=0.0, format="%.0f"),
       #  "Other": st.column_config.NumberColumn(min_value=0.0, format="%.0f"),
     },
